@@ -4,7 +4,7 @@
 #include "game.h"
 #include "interface.h"
 
-int main()
+int main ()
 {
 	initInterface();
 	initGame();

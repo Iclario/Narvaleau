@@ -29,12 +29,13 @@
 #define Z 26
 
 #define BOARD_SIZE_MAX 26
-#define BOARD_SIZE 10
+#define BOARD_SIZE	   10
 
 typedef struct BOARD
 {
 	int ship[BOARD_SIZE][BOARD_SIZE];
-	/* 
+
+	/*
 	 * 0 - No ship
 	 * 1 - Carrier    (5)
 	 * 2 - Battleship (4)
@@ -44,18 +45,20 @@ typedef struct BOARD
 	 */
 
 	int flag[BOARD_SIZE][BOARD_SIZE];
+
 	/*
 	 * 0 - No flag
 	 * 1 - Personnal flag
 	 */
 
 	int shot[BOARD_SIZE][BOARD_SIZE];
+
 	/*
 	 * 0 - No shoot
 	 * 1 - Missed shoot
 	 * 2 - Hit shoot
 	 */
-}Board;
+} Board;
 
 Board player1;
 Board player2;
@@ -63,4 +66,4 @@ Board player2;
 int player;
 int edit;
 
-#endif
+#endif // ifndef MAIN_H

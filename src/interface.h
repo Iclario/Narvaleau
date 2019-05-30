@@ -3,8 +3,8 @@
 
 #define GRAPHIQUE 0
 
-void initInterface();
-void displayBoard(Board *pboard, int displayShip);
-void displayStart();
+void initInterface ();
+void displayBoard (Board * pboard, int displayShip);
+void displayStart ();
 
 #endif
