@@ -1,23 +1,83 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "main.h"
+#include <string.h>
+#include "game.h"
 #include "interface.h"
+#include "utils.h"
 
 void clear ()
 {
 	printf ("\033[H\033[J");
+	printf ("\033[H\033[J");
+
+	displayHeader();
+}
+
+void displayCenteredText (char * text)
+{
+	int length = strlen (text);
+	int size   = BOARD_SIZE * 3 + 4 - length;
+	int left   = size / 2.0 + 0.5;
+	int i;
+
+	for (i = 0; i < left; i++)
+		printf (" ");
+
+	printf ("%s\n", text);
+}
+
+void displayTextHead (char * text)
+{
+	int length = strlen (text);
+	int size   = BOARD_SIZE * 3 + 2 - length;
+	int left   = size / 2.0 + 0.5;
+	int right  = size / 2;
+	int i;
+
+	for (i = 0; i < left; i++)
+		printf ("%c%c%c", 0xE2, 0x80, 0x95);
+
+	printf (" %s ", text);
+
+	for (i = 0; i < right; i++)
+		printf ("%c%c%c", 0xE2, 0x80, 0x95);
+
+	printf ("\n");
+}
+
+void displayTextHeadDouble (char * text)
+{
+	int length = strlen (text);
+	int size   = BOARD_SIZE * 3 + 2 - length;
+	int left   = size / 2.0 + 0.5;
+	int right  = size / 2;
+	int i;
+
+	for (i = 0; i < left; i++)
+		printf ("=");
+
+	printf (" %s ", text);
+
+	for (i = 0; i < right; i++)
+		printf ("=");
+
+	printf ("\n");
+}
+
+void displayHeader ()
+{
+	displayTextHeadDouble ("Bataille navale");
+	displayTextHeadDouble (GAME_NAME);
 }
 
 void initInterface ()
 {
-	char a;
+	char bin;
 
 	clear();
-	printf ("======================== Bataille navale ========================\n");
-	printf ("=========================== Naval'eau ===========================\n");
 
 	printf ("Appuyez sur \"Entrée\" pour continuer\n");
-	/* scanf("%c", &a); */
+	scanf ("%c", &bin);
 }
 
 void display ()
@@ -49,93 +109,126 @@ void displayBoard (Board * pboard, int displayShips)
 {
 	int i, j;
 
-	printf ("===");
-	for (i = 0; i < BOARD_SIZE; i++)
-		printf ("=====");
+	for (i = 0; i < BOARD_SIZE * 3 + 4; i++)
+		printf ("=");
+
 	printf ("\n");
 
-	printf ("= ");
+	printf ("%c%c%c ", 0xE2, 0x88, 0xA5);
 
 	for (i = 0; i < BOARD_SIZE; i++)
 	{
-		printf ("    %c", i + 'A');
+		printf ("  %c", i + 'A');
 	}
 
-	printf ("\n=\n");
+	/*
+	 *  printf (" %c%c%c\n%c%c%c", 0xE2, 0x88, 0xA5, 0xE2, 0x88, 0xA5);
+	 *
+	 *  for (j = 0; j < BOARD_SIZE * 3 + 3; j++)
+	 *      printf (" ");*/
+
+	printf (" %c%c%c\n", 0xE2, 0x88, 0xA5);
 
 	for (i = 0; i < BOARD_SIZE; i++)
 	{
-		printf ("= %2d", i + 1);
+		printf ("%c%c%c%2d", 0xE2, 0x88, 0xA5, i + 1);
 
 		for (j = 0; j < BOARD_SIZE; j++)
 		{
 			if (pboard->shot[i][j] == 1)
-				printf ("  %c%c%c  ", 0xE2, 0x9D, 0x8C);
+				printf (" %c%c%c ", 0xE2, 0x9D, 0x8C);
 			else if (pboard->shot[i][j] == 2)
-				printf ("  %c%c%c%c  ", 0xF0, 0x9F, 0x94, 0xA5);
+				printf (" %c%c%c%c ", 0xF0, 0x9F, 0x94, 0xA5);
 			else if (pboard->flag[i][j] == 1 && displayShips == 0)
-				printf ("  %c%c%c%c  ", 0xF0, 0x9F, 0x9A, 0xA9);
-			else if (displayShips == 1 && pboard->ship[i][j] == 4)
-				printf ("  %c%c%c  ", 0xE2, 0xAC, 0x9B);
+				printf (" %c%c%c%c ", 0xF0, 0x9F, 0x9A, 0xA9);
+			else if (displayShips == 1 && (pboard->ship[i][j] != 0))
+				printf (" %c%c%c ", 0xE2, 0x96, 0xA0);	// 0xE2, 0xAC, 0x9B : Carré
 			else
-				printf ("  .  ");
+				printf (" . ");
 		}
 
-		printf ("\n=\n");
+		/*
+		 *      printf ("%c%c%c\n%c%c%c", 0xE2, 0x88, 0xA5, 0xE2, 0x88, 0xA5);
+		 *
+		 *      for (j = 0; j < BOARD_SIZE * 5 + 3; j++)
+		 *          printf (" ");*/
+
+		printf ("%c%c%c\n", 0xE2, 0x88, 0xA5);
 	}
 
+	for (i = 0; i < BOARD_SIZE * 3 + 4; i++)
+		printf ("=");
+
+	printf ("\n\n");
+}	/* displayBoard */
+
+void displayStartHeader (int player)
+{
+	char playerHeadText[10];
+
 	printf ("\n");
-} /* displayBoard */
+	displayTextHead ("Placement des bateaux");
+	sprintf (playerHeadText, "Joueur %d", player);
+	displayTextHead (playerHeadText);
+	printf ("\n");
+}
 
 void displayStart ()
 {
 	Board * board;
-	int ships[5], i, player, choiceShip, choiceDirection, posNum, posLetter, directionLock[4], directionLocked, shipLength;
+
+	Coordinates pos;// Chosen position variable
+
+	int player;		// Currently chosing player
+	int ships[5];	// Remaining placable ships
+	int i, j, k;	// Couting variables
+	int shipLength;	// Length of the chosen ship
+	int choiceShip, choiceDirection;// User choice variables
+	int directionLock[4];
+	int directionLocked;
+
 	char choicePlace[6];
+	char bin;
 
 	for (player = 1; player <= 2; player++)
 	{
 		for (i = 1; i < 6; i++)
 			ships[i] = 1;
 
-		for (i = 0; i < 4; i++)
-			directionLock[i] = 0;
-
 		if (player == 1)
 			board = &player1;
 		else
 			board = &player2;
 
-
 		do
 		{
 			clear();
-			printf ("Joueur %d, placez vos bateaux !\n\n", player);
+			displayStartHeader (player);
 
 			displayBoard (board, 1);
 
-			printf ("Bateaux restants :\n");
+			printf ("Bateaux restants :\n\n");
 
 			for (i = 1; i < 6; i++)
 			{
-				printf ("    %d. ", i);
+				printf ("%d. ", i);
 
 				switch (i)
 				{
 					case 1:
-						printf ("Porte-avion (5 cases)      ");
+						printf ("Porte-avion (5 cases) ");
 						break;
 					case 2:
-						printf ("Croiseur (4 cases)         ");
+						printf ("Croiseur (4 cases)    ");
 						break;
 					case 3:
-						printf ("Contre-torpilleur (3 cases)");
+						printf ("Torpilleur (3 cases)  ");
 						break;
 					case 4:
-						printf ("Sous-marin (3 cases)       ");
+						printf ("Sous-marin (3 cases)  ");
 						break;
 					case 5:
-						printf ("Torpilleur (2 cases)       ");
+						printf ("Torpilleur (2 cases)  ");
 						break;
 				}
 
@@ -147,11 +240,9 @@ void displayStart ()
 			do
 			{
 				printf ("Quel bateau voulez-vous placer ? ");
-				scanf ("%d", &choiceShip);
+				choiceShip = scanint();
 			}
 			while (choiceShip < 1 || choiceShip > 5 || ships[choiceShip] <= 0);
-
-			ships[choiceShip]--;
 
 			switch (choiceShip)
 			{
@@ -177,26 +268,30 @@ void displayStart ()
 			{
 				printf ("Où souhaitez-vous le placer (De A1 à %c%d) ? ", 'A' + BOARD_SIZE - 1, BOARD_SIZE);
 				scanf ("%s", choicePlace);
-				posNum	  = strtol (choicePlace + 1, NULL, 10);
-				posLetter = choicePlace[0];
+				pos.number = strtol (choicePlace + 1, NULL, 10);
+				pos.letter = choicePlace[0] - 'A' + 1;
 			}
-			while (posLetter < 'A' || posLetter > 'A' + BOARD_SIZE - 1 || posNum < 1 || posNum > BOARD_SIZE);
+			while (pos.letter < 1 || pos.letter > BOARD_SIZE || pos.number < 1 || pos.number > BOARD_SIZE);
 
-			/* shipLength
-			 * 0 : Bas
-			 * 1 : Gauche
-			 * 2 : Haut
-			 * 3 : Droite
-			 */
+			for (i = 0; i < 4; i++)
+				directionLock[i] = 0;
 
-			if (posLetter + 1 - 'A' - shipLength < 0)
-				directionLock[1] = 1;
-			if (posLetter + 1 - 'A' + shipLength > BOARD_SIZE + 1)
-				directionLock[3] = 1;
-			if (posNum - shipLength < 0)
-				directionLock[2] = 1;
-			if (posNum + shipLength > BOARD_SIZE + 1)
-				directionLock[0] = 1;
+			if (pos.number + shipLength > BOARD_SIZE + 1) directionLock[0] = 1;	// Bas
+			if (pos.letter - shipLength < 0) directionLock[1] = 1;				// Gauche
+			if (pos.number - shipLength < 0) directionLock[2] = 1;				// Haut
+			if (pos.letter + shipLength > BOARD_SIZE + 1) directionLock[3] = 1;	// Droite
+
+			for (i = 0; i < shipLength; i++)
+			{
+				if (directionLock[0] != 1 && board->ship[pos.number - 1 + i][pos.letter - 1] != 0)	// Bas
+					directionLock[0] = 1;
+				if (directionLock[1] != 1 && board->ship[pos.number - 1][pos.letter - 1 - i] != 0)	// Gauche
+					directionLock[1] = 1;
+				if (directionLock[2] != 1 && board->ship[pos.number - 1 - i][pos.letter - 1] != 0)	// Haut
+					directionLock[2] = 1;
+				if (directionLock[3] != 1 && board->ship[pos.number - 1][pos.letter - 1 + i] != 0)	// Droite
+					directionLock[3] = 1;
+			}
 
 			printf ("Dans quelle orientation ?\n");
 			printf ("1. Bas");
@@ -207,37 +302,64 @@ void displayStart ()
 			if (directionLock[2]) printf ("   X");
 			printf ("\n4. Droite");
 			if (directionLock[3]) printf (" X");
-			printf ("\n");
+			printf ("\n5. Annuler\n");
 
 			do
 			{
 				printf ("Choix : ");
-				scanf ("%d", &choiceDirection);
-
+				choiceDirection = scanint();
 				directionLocked = 0;
 
 				for (i = 0; i < 4; i++)
 					if (choiceDirection == i + 1 && directionLock[i] == 1)
 						directionLocked = 1;
 			}
-			while (directionLocked);
+			while (choiceDirection < 1 || choiceDirection > 5 || directionLocked);
 
-			ships[0] = 0;
+			if (choiceDirection != 5)
+			{
+				i = pos.number - 1;
+				j = pos.letter - 1;
 
-			for (i = 1; i < 5; i++)
-				if (ships[i] == 1)
-					ships[0] = 1;
+				for (k = 0; k < shipLength; k++)
+				{
+					board->ship[i][j] = choiceShip;
 
-			posLetter;
-			posNum;
-			shipLength;
-			board;
+					switch (choiceDirection)
+					{
+						case 1:
+							i++;
+							break;
+						case 2:
+							j--;
+							break;
+						case 3:
+							i--;
+							break;
+						case 4:
+							j++;
+							break;
+					}
+				}
 
-			/* A faire :
-			 *
-			 * Positionner les cases prises
-			 */
+				ships[0] = 0;
+				ships[choiceShip]--;
+
+				for (i = 1; i <= 5; i++)
+					if (ships[i] == 1)
+						ships[0] = 1;
+			}
 		}
 		while (ships[0] == 1);
+
+		clear();
+		displayStartHeader (player);
+		displayBoard (board, 1);
+		displayCenteredText ("Voici votre disposition");
+		printf ("\nAppuyez sur \"Entrée\" pour continuer");
+		scanf ("%c%c", &bin, &bin);
 	}
-} /* displayStart */
+}	/* displayStart */
+
+void displayGame ()
+{ }

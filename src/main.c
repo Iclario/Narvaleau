@@ -11,5 +11,8 @@ int main ()
 
 	displayStart();
 
+	while (1)
+		displayGame();
+
 	return 0;
 }
