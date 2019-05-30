@@ -1,5 +1,5 @@
 Navaleau.o : build/main.o build/interface.o build/file.o build/save.o build/game.o
-	gcc -ansi -Wall build/main.o build/interface.o build/file.o build/save.o build/game.o -o out/Navaleau.o
+	gcc -ansi -Wall build/main.o build/interface.o build/file.o build/save.o build/game.o -o out/Navaleau.exe
 
 build/main.o : src/main.c
 	gcc -ansi -Wall -c src/main.c -o build/main.o
@@ -17,4 +17,4 @@ build/game.o : src/game.c
 	gcc -ansi -Wall -c src/game.c -o build/game.o
 
 run : Navaleau.o
-	./out/Navaleau.o
+	./out/Navaleau.exe
