@@ -5,5 +5,11 @@ int scanint ();
 const char * shipName (ShipType shipType);
 Coordinates getPosFromString (char * posChar);
 char * getStringFromPos (Coordinates pos);
-const char * directionName(Direction dir);
-#endif
+const char * directionName (Direction dir);
+int positionIsInBound (Coordinates pos);
+int directionIsInBound (Direction dir);
+int shipTypeIsInBound (ShipType shipType);
+int randInBounds (int a, int b);
+const char * getStringFromShot (ShotType shot);
+
+#endif	// ifndef UTILS_H

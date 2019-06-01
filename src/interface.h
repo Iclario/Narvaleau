@@ -11,7 +11,11 @@ void displayHeader ();
 void initInterface ();
 void displayBoard (Player * player);
 void displayStartHeader ();
+void displayGameHeader ();
+void displayStartBoard ();
 void displayStart ();
+void displayGameBoard ();
 void displayGame ();
+void pause ();
 
 #endif	// ifndef INTERFACE_H

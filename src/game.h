@@ -3,32 +3,32 @@
 
 #define GAME_NAME "Naval'eau"
 
-#define A 0
-#define B 1
-#define C 2
-#define D 3
-#define E 4
-#define F 5
-#define G 6
-#define H 7
-#define I 8
-#define J 9
-#define K 10
-#define L 11
-#define M 12
-#define N 13
-#define O 14
-#define P 15
-#define Q 16
-#define R 17
-#define S 18
-#define T 19
-#define U 20
-#define V 21
-#define W 22
-#define X 23
-#define Y 24
-#define Z 25
+#define A 1
+#define B 2
+#define C 3
+#define D 4
+#define E 5
+#define F 6
+#define G 7
+#define H 8
+#define I 9
+#define J 10
+#define K 11
+#define L 12
+#define M 13
+#define N 14
+#define O 15
+#define P 16
+#define Q 17
+#define R 18
+#define S 19
+#define T 20
+#define U 21
+#define V 22
+#define W 23
+#define X 24
+#define Y 25
+#define Z 26
 
 #define BOARD_SIZE_MIN 10
 #define BOARD_SIZE_MAX 26
@@ -55,7 +55,8 @@ typedef enum SHOT_TYPE
 {
 	NO_SHOT = 0,
 	MISSED	= 1,
-	HIT		= 2
+	HIT		= 2,
+	FLOWED	= 3
 } ShotType;
 
 typedef struct BOARD
@@ -82,7 +83,7 @@ typedef struct PLAYER
 {
 	PlayerId id;
 	Board *	 board;
-	int		 isReady;
+	int		 played;
 	int		 placeableShips[N_SHIPS];
 } Player;
 
@@ -99,6 +100,7 @@ typedef struct GAME
 	Player * player1;
 	Player * player2;
 	PlayerId current;
+	int		 round;
 } Game;
 
 Game game;
@@ -106,12 +108,14 @@ Game game;
 Player * currentPlayer ();
 Player * otherPlayer ();
 void initGame ();
-int * shipIsPlaceable (Player * player, Coordinates pos, ShipType shipType);
-void initShips (Player * player);
+int shipIsNotPlaceable (Player * player, Coordinates pos, Direction direction, ShipType shipType);
+void initPlaceableShips (Player * player);
 void nextPlayer ();
 int allShipsPlaced (Player * player);
-void placeShip (Player * player, Coordinates pos, int direction, ShipType shipType);
-int getShipLength (ShipType choiceShip);
+int placeShip (Player * player, Coordinates pos, Direction direction, ShipType shipType);
+void placeShipsRandomly (Player * player);
+int getShipLength (ShipType shipType);
 int isPlaying (Player * player);
+ShotType shootPlayer (Player * player, Coordinates pos);
 
-#endif // ifndef GAME_H
+#endif	// ifndef GAME_H

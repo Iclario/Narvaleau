@@ -79,3 +79,41 @@ const char * directionName (Direction dir)
 			return "Erreur";
 	}
 }
+
+int positionIsInBound (Coordinates pos)
+{
+	return pos.letter >= 1 && pos.letter <= BOARD_SIZE && pos.number >= 1 && pos.number <= BOARD_SIZE;
+}
+
+int directionIsInBound (Direction dir)
+{
+	return dir >= 0 && dir <= 3;
+}
+
+int shipTypeIsInBound (ShipType shipType)
+{
+	return shipType >= 1 && shipType <= N_SHIPS;
+}
+
+int randInBounds (int a, int b)
+{
+	return rand() % (b - a) + a;
+}
+
+const char * getStringFromShot (ShotType shot)
+{
+	switch (shot)
+	{
+		case HIT:
+			return "Touché !";
+
+		case MISSED:
+			return "Manqué !";
+
+		case FLOWED:
+			return "Coulé !";
+
+		default:
+			return "Erreur";
+	}
+}

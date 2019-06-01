@@ -7,6 +7,12 @@
 
 void clear ()
 {
+	/* int i;
+	 *
+	 * for (i = 0; i < 20; i++)
+	 * printf ("\n");
+	 */
+
 	printf ("\033[H\033[J");
 	printf ("\033[H\033[J");
 
@@ -76,7 +82,7 @@ void initInterface ()
 
 	clear();
 
-	printf ("Appuyez sur \"Entrée\" pour continuer\n");
+	printf ("\nAppuyez sur \"Entrée\" pour continuer");
 	scanf ("%c", &bin);
 }
 
@@ -104,14 +110,16 @@ void displayBoard (Player * player)
 
 		for (j = 0; j < BOARD_SIZE; j++)
 		{
-			if (player->board->shot[i][j] == 1)
-				printf (" %c%c%c ", 0xE2, 0x9D, 0x8C);
-			else if (player->board->shot[i][j] == 2)
+			if (player->board->shot[i][j] == MISSED)
+				printf (" %c%c%c ", 0xE2, 0xA8, 0xAF);
+			else if (player->board->shot[i][j] == HIT)
 				printf (" %c%c%c%c ", 0xF0, 0x9F, 0x94, 0xA5);
-			else if (player->board->flag[i][j] == 1 && !isPlaying(player))
-				printf (" %c%c%c%c ", 0xF0, 0x9F, 0x9A, 0xA9);
-			else if (isPlaying(player) && (player->board->ship[i][j] != 0))
+			else if (player->board->shot[i][j] == FLOWED)
+				printf (" %c%c%c ", 0xE2, 0x9C, 0x9D);
+			else if (isPlaying (player) && (player->board->ship[i][j] != NO_SHIP))
 				printf (" %c%c%c ", 0xE2, 0x96, 0xA0);
+			else if (!isPlaying (player) && player->board->flag[i][j] == PERSONNAL)
+				printf (" %c%c%c ", 0xE2, 0x8A, 0x95);
 			else
 				printf (" . ");
 		}
@@ -122,7 +130,7 @@ void displayBoard (Player * player)
 	for (i = 0; i < BOARD_SIZE * 3 + 4; i++)
 		printf ("=");
 
-	printf ("\n\n");
+	printf ("\n");
 }	/* displayBoard */
 
 void displayStartHeader ()
@@ -130,44 +138,68 @@ void displayStartHeader ()
 	char playerHeadText[10];
 
 	printf ("\n");
-	displayTextHead ("Placement des bateaux");
+	displayTextHead ("Placement des navires");
 	sprintf (playerHeadText, "Joueur %d", currentPlayer()->id);
 	displayTextHead (playerHeadText);
 	printf ("\n");
 }
 
+void displayGameHeader ()
+{
+	char playerHeadText[10];
+
+	printf ("\n");
+	sprintf (playerHeadText, "Tour %d", game.round);
+	displayTextHead (playerHeadText);
+	sprintf (playerHeadText, "Joueur %d", currentPlayer()->id);
+	displayTextHead (playerHeadText);
+	printf ("\n");
+}
+
+void displayStartBoard ()
+{
+	clear();
+	displayStartHeader();
+	displayBoard (currentPlayer());
+}
+
 void displayStart ()
 {
-	char bin;
-	int i;					// Couting variable
-	int choiceDirection;	// User direction choice
-	ShipType choiceShip;	// User ship choice
-	Coordinates choicePos;	// User position choice
-	char choicePosChar[10];	// User position choice (String)
+	int i;						// Couting variable
+	Direction choiceDirection;	// User direction choice
+	ShipType choiceShip;		// User ship choice
+	Coordinates choicePos;		// User position choice
+	char choicePosChar[10];		// User position choice (String)
 
-	while (!game.player1->isReady || !game.player2->isReady)
+	while (!allShipsPlaced (game.player1) || !allShipsPlaced (game.player2))
 	{
-		initShips (currentPlayer());
-
 		do
 		{
-			clear();
-			displayStartHeader();
-			displayBoard (currentPlayer());
+			displayStartBoard();
 
-			printf ("Bateaux restants :\n\n");
+			printf ("\nBateaux restants :\n\n");
 
 			for (i = 1; i < 6; i++)
 				printf ("%d. %s (%d cases) : %d\n", i, shipName (i), getShipLength (i), currentPlayer()->placeableShips[i - 1]);
 
-			printf ("\n");
+			printf ("%d. Finir de placer aléatoirement\n\n", i);
 
 			do
 			{
 				printf ("Quel bateau voulez-vous placer ? ");
 				choiceShip = scanint();
+
+				if (choiceShip == N_SHIPS + 1)
+					break;
 			}
-			while (choiceShip < 1 || choiceShip > 5 || currentPlayer()->placeableShips[choiceShip - 1] <= 0);
+			while (!shipTypeIsInBound (choiceShip) || currentPlayer()->placeableShips[choiceShip - 1] <= 0);
+
+			if (choiceShip == N_SHIPS + 1)
+			{
+				placeShipsRandomly (currentPlayer());
+				break;
+			}
+
 
 			do
 			{
@@ -175,45 +207,90 @@ void displayStart ()
 				scanf ("%s", choicePosChar);
 				choicePos = getPosFromString (choicePosChar);
 			}
-			while (choicePos.letter < 1 || choicePos.letter > BOARD_SIZE || choicePos.number < 1 || choicePos.number > BOARD_SIZE);
-
-			int * directionLock = shipIsPlaceable (currentPlayer(), choicePos, getShipLength (choiceShip));
+			while (!positionIsInBound (choicePos));
 
 			printf ("Dans quelle orientation ?\n");
 
 			for (i = 0; i < 4; i++)
-				printf ("%d. %s %s\n", i + 1, directionName (i), directionLock[i] ? "X" : "");
+				printf ("%d. %s %s\n", i + 1, directionName (i), shipIsNotPlaceable (currentPlayer(), choicePos, i, choiceShip) ? "X" : "");
 
 			printf ("%d. Annuler\n", i + 1);
 
 			do
 			{
 				printf ("Choix : ");
-				choiceDirection = scanint();
+				choiceDirection = scanint() - 1;
+				if (choiceDirection == 4)
+					break;
 			}
-			while (choiceDirection < 1 || choiceDirection > 5 || directionLock[choiceDirection - 1] == 1);
+			while (choiceDirection < 0 || choiceDirection > 3 || shipIsNotPlaceable (currentPlayer(), choicePos, choiceDirection, choiceShip) );
 
-			if (choiceDirection != 5)
-				placeShip (currentPlayer(), choicePos, choiceDirection, choiceShip);
+			placeShip (currentPlayer(), choicePos, choiceDirection, choiceShip);
 		}
 		while (!allShipsPlaced (currentPlayer()));
 
-		clear();
-		displayStartHeader();
-		displayBoard (currentPlayer());
-		displayCenteredText ("Voici votre disposition");
-		printf ("\nAppuyez sur \"Entrée\" pour continuer");
-		scanf ("%c%c", &bin, &bin);
+		displayStartBoard();
 
-		currentPlayer()->isReady = 1;
+		displayCenteredText ("Voici votre disposition");
+
 		nextPlayer();
+
+		pause();
 	}
 }	/* displayStart */
 
-void displayGame ()
+void displayGameBoard ()
 {
 	clear();
 
-	displayBoard (currentPlayer());
+	displayGameHeader();
 	displayBoard (otherPlayer());
+	displayBoard (currentPlayer());
+}
+
+void displayGame ()
+{
+	// char bin;
+	// int i;				// Couting variable
+	Coordinates choicePos;	// User position choice
+	char choicePosChar[10];	// User position choice (String)
+	ShotType shot;
+
+	while (1)	// gameIsOver()
+	{
+		displayGameBoard();
+		printf ("\n");
+
+		do
+		{
+			printf ("Où souhaitez-vous attaquer ? (De A1 à %c%d) ? ", 'A' + BOARD_SIZE - 1, BOARD_SIZE);
+			scanf ("%s", choicePosChar);
+			choicePos = getPosFromString (choicePosChar);
+
+			shot = shootPlayer (otherPlayer(), choicePos);
+		}
+		while (shot == NO_SHOT);
+
+		clear();
+
+		displayGameHeader();
+		displayBoard (otherPlayer());
+		nextPlayer();
+		displayBoard (otherPlayer());
+
+		displayCenteredText ((char *) getStringFromShot (shot));
+		pause();
+	}
+}	/* displayGame */
+
+void pause ()
+{
+	char bin;
+	char pauseText[30];
+
+	printf ("\n");
+	sprintf (pauseText, "Au tour du joueur %d", currentPlayer()->id);
+	displayCenteredText (pauseText);
+	displayCenteredText ("Appuyez sur \"Entrée\" pour continuer");
+	scanf ("%c%c", &bin, &bin);
 }
