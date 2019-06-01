@@ -9,8 +9,8 @@ void displayTextHead (char * text);
 void displayTextHeadDouble (char * text);
 void displayHeader ();
 void initInterface ();
-void displayBoard (Board * pboard, int displayShip);
-void displayStartHeader (int player);
+void displayBoard (Player * player);
+void displayStartHeader ();
 void displayStart ();
 void displayGame ();
 

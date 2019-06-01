@@ -1,0 +1,8 @@
+BOARD_SIZE as a variable
+Ships names in utils.c
+Ships lengths in utils.c
+fix choiceDirection out of array
+Use enum names (ship_type...)
+Change shipIsPlaceable()
+Remove "for (j = 1; j <= 2; j++)"
+free mallocs
