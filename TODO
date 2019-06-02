@@ -2,7 +2,6 @@ BOARD_SIZE as a variable
 fix choiceDirection out of array
 Use enum names (ship_type...)
 Change shipIsPlaceable()
-Remove "for (j = 1; j <= 2; j++)"
 free mallocs
 Coordinates from 0 to 9 (not from 1 to 10)
 Placeable ships choosable

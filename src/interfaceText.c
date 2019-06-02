@@ -1,9 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "game.h"
 #include "interface.h"
-#include "utils.h"
+
+#if GRAPHIQUE == 0
+
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include "game.h"
+# include "utils.h"
 
 void clear ()
 {
@@ -235,7 +238,7 @@ void displayStart ()
 
 		nextPlayer();
 
-		pause();
+		pressEnterToContinue();
 	}
 }	/* displayStart */
 
@@ -255,6 +258,8 @@ void displayGame ()
 	Coordinates choicePos;	// User position choice
 	char choicePosChar[10];	// User position choice (String)
 	ShotType shot;
+
+	displayStart();
 
 	while (1)	// gameIsOver()
 	{
@@ -279,11 +284,11 @@ void displayGame ()
 		displayBoard (otherPlayer());
 
 		displayCenteredText ((char *) getStringFromShot (shot));
-		pause();
+		pressEnterToContinue();
 	}
 }	/* displayGame */
 
-void pause ()
+void pressEnterToContinue ()
 {
 	char bin;
 	char pauseText[30];
@@ -294,3 +299,5 @@ void pause ()
 	displayCenteredText ("Appuyez sur \"Entrée\" pour continuer");
 	scanf ("%c%c", &bin, &bin);
 }
+
+#endif	// if GRAPHIQUE = 0

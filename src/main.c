@@ -9,19 +9,8 @@
 int main ()
 {
 	initGame();
-	initInterface();
-	displayStart();
+	initInterface ();
 
-	/*
-	 *  while (!allShipsPlaced (game.player1) || !allShipsPlaced (game.player2))
-	 *  {
-	 *      placeShipsRandomly (currentPlayer());
-	 *      currentPlayer()->played = 1;
-	 *
-	 *      nextPlayer();
-	 *  }
-	 */
-	
 	displayGame();
 
 	return 0;

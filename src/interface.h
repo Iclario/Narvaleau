@@ -1,21 +1,43 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-#define GRAPHIQUE 0
+#include "game.h"
+
+#define GRAPHIQUE 1
+
+#if GRAPHIQUE == 0
+
+#else
+
+# include "gtk/gtk.h"
+
+#endif
+
+void initInterface ();
+void displayGame ();
+
+#if GRAPHIQUE == 0
 
 void clear ();
+void displayStart ();
 void displayCenteredText (char * text);
 void displayTextHead (char * text);
 void displayTextHeadDouble (char * text);
 void displayHeader ();
-void initInterface ();
 void displayBoard (Player * player);
 void displayStartHeader ();
 void displayGameHeader ();
 void displayStartBoard ();
-void displayStart ();
 void displayGameBoard ();
-void displayGame ();
-void pause ();
+void pressEnterToContinue ();
+
+#else	// if GRAPHIQUE == 0
+
+GtkApplication * app;
+int status;
+
+void activate (GtkApplication * app, gpointer user_data);
+
+#endif	// if GRAPHIQUE == 0
 
 #endif	// ifndef INTERFACE_H

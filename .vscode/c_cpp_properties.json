@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+			"name": "Navaleau-GTK",
+            "includePath": [
+                "/usr/include/gtk-3.0",
+                "/usr/include/pango-1.0",
+                "/usr/include/glib-2.0",
+                "/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+                "/usr/include/cairo",
+                "/usr/include/pixman-1",
+                "/usr/include/freetype2",
+                "/usr/include/libpng16",
+                "/usr/include/harfbuzz",
+                "/usr/include/gdk-pixbuf-2.0",
+                "/usr/include/gio-unix-2.0/",
+                "/usr/include/atk-1.0",
+                "/usr/include/at-spi2-atk/2.0",
+                "/usr/include/at-spi-2.0",
+                "/usr/include/dbus-1.0",
+                "/usr/lib/x86_64-linux-gnu/dbus-1.0/include"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
