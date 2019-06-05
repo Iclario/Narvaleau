@@ -67,6 +67,17 @@ void initGame ()
 }	/* initGame */
 
 /*
+ * Quits the game and frees memory
+ */
+void quitGame ()
+{
+	free (game.player1->board);
+	free (game.player2->board);
+	free (game.player1);
+	free (game.player2);
+}
+
+/*
  * Returns a value according to if ship is placeable
  *
  * 0 : Ship is placeable

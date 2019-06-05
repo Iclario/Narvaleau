@@ -3,6 +3,7 @@
 		"string.h": "c",
 		"stdio.h": "c",
 		"stdlib.h": "c",
-		"gtk.h": "c"
+		"gtk.h": "c",
+		"sdl.h": "c"
 	}
 }

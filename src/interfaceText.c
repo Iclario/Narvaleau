@@ -8,33 +8,6 @@
 # include "game.h"
 # include "utils.h"
 
-void clear ()
-{
-	/* int i;
-	 *
-	 * for (i = 0; i < 20; i++)
-	 * printf ("\n");
-	 */
-
-	printf ("\033[H\033[J");
-	printf ("\033[H\033[J");
-
-	displayHeader();
-}
-
-void displayCenteredText (char * text)
-{
-	int length = strlen (text);
-	int size   = BOARD_SIZE * 3 + 4 - length;
-	int left   = size / 2.0 + 0.5;
-	int i;
-
-	for (i = 0; i < left; i++)
-		printf (" ");
-
-	printf ("%s\n", text);
-}
-
 void displayTextHead (char * text)
 {
 	int length = strlen (text);
@@ -79,6 +52,27 @@ void displayHeader ()
 	displayTextHeadDouble (GAME_NAME);
 }
 
+void clear ()
+{
+	printf ("\033[H\033[J");
+	printf ("\033[H\033[J");
+
+	displayHeader();
+}
+
+void displayCenteredText (char * text)
+{
+	int length = strlen (text);
+	int size   = BOARD_SIZE * 3 + 4 - length;
+	int left   = size / 2.0 + 0.5;
+	int i;
+
+	for (i = 0; i < left; i++)
+		printf (" ");
+
+	printf ("%s\n", text);
+}
+
 void initInterface ()
 {
 	char bin;
@@ -87,6 +81,18 @@ void initInterface ()
 
 	printf ("\nAppuyez sur \"Entrée\" pour continuer");
 	scanf ("%c", &bin);
+}
+
+void pressEnterToContinue ()
+{
+	char bin;
+	char pauseText[30];
+
+	printf ("\n");
+	sprintf (pauseText, "Au tour du joueur %d", currentPlayer()->id);
+	displayCenteredText (pauseText);
+	displayCenteredText ("Appuyez sur \"Entrée\" pour continuer");
+	scanf ("%c%c", &bin, &bin);
 }
 
 void displayBoard (Player * player)
@@ -288,16 +294,7 @@ void displayGame ()
 	}
 }	/* displayGame */
 
-void pressEnterToContinue ()
-{
-	char bin;
-	char pauseText[30];
-
-	printf ("\n");
-	sprintf (pauseText, "Au tour du joueur %d", currentPlayer()->id);
-	displayCenteredText (pauseText);
-	displayCenteredText ("Appuyez sur \"Entrée\" pour continuer");
-	scanf ("%c%c", &bin, &bin);
-}
+void quitInterface ()
+{ }
 
 #endif	// if GRAPHIQUE = 0

@@ -4,55 +4,75 @@
 
 # include "game.h"
 # include "utils.h"
-# include <gtk/gtk.h>
+# include <stdlib.h>
+# include <stdio.h>
+# include <SDL2/SDL.h>
+
+SDL_Window * window;
+SDL_Renderer * renderer;
+SDL_Surface * image;
+SDL_Rect rect;
+
+void drawBoard ()
+{
+	int w, h;
+
+	SDL_SetRenderDrawColor (renderer, 255, 255, 255, 255);
+	SDL_RenderClear (renderer);
+
+	SDL_GetWindowSize (window, &w, &h);
+
+	rect.w = 300;
+	rect.h = 300;
+	rect.x = (w - rect.w) / 2;
+	rect.y = 50;
+
+	SDL_SetRenderDrawColor (renderer, 255, 0, 0, 255);
+	SDL_RenderDrawRect (renderer, &rect);
+
+	SDL_RenderPresent (renderer);
+}
 
 void initInterface ()
 {
-	app = gtk_application_new ("fr.iclario.navaleau", G_APPLICATION_FLAGS_NONE);
-	g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+	window = SDL_CreateWindow ("SDL2 Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_DIMENSION_WIDTH, WINDOW_DIMENSION_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+
+	renderer = SDL_CreateRenderer (window, -1, SDL_RENDERER_ACCELERATED);
+}
+
+void displayStart ()
+{
+	drawBoard();
 }
 
 void displayGame ()
 {
-	status = g_application_run (G_APPLICATION (app), 0, NULL);
-	g_object_unref (app);
+	SDL_Event event;
+
+	int endGame = 0;
+
+	while (!endGame)
+	{
+		if (SDL_PollEvent (&event) > 0)
+		{
+			switch (event.type)
+			{
+				case SDL_QUIT:
+					endGame = 1;
+					break;
+			}
+
+			if (game.round == 0)
+				displayStart();
+
+			SDL_UpdateWindowSurface (window);
+		}
+	}
 }
 
-void print_hello (GtkWidget * widget, gpointer data)
+void quitInterface ()
 {
-	g_print ("Hello World\n");
-}
-
-void activate (GtkApplication * app, gpointer user_data)
-{
-	GtkWidget * window;
-	GtkWidget * grid;
-	GtkWidget * button;
-
-	window = gtk_application_window_new (app);
-	gtk_window_set_title (GTK_WINDOW (window), GAME_NAME);
-	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
-
-	grid = gtk_grid_new();
-	gtk_container_add (GTK_CONTAINER (window), grid);
-
-	button = gtk_button_new_with_label ("Button 1");
-	g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-	gtk_grid_attach (GTK_GRID (grid), button, 0, 0, 1, 1);
-
-	button = gtk_button_new_with_label ("Button 2");
-	g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-	gtk_grid_attach (GTK_GRID (grid), button, 1, 0, 1, 1);
-
-	button = gtk_button_new_with_label ("Button 3");
-	g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-	gtk_grid_attach (GTK_GRID (grid), button, 2, 0, 1, 1);
-
-	button = gtk_button_new_with_label ("Quit");
-	g_signal_connect_swapped (button, "clicked", G_CALLBACK (gtk_widget_destroy), window);
-	gtk_grid_attach (GTK_GRID (grid), button, 0, 1, 3, 1);
-
-	gtk_widget_show_all (window);
+	SDL_Quit();
 }
 
 #endif	/* if GRAPHIQUE == 1 */

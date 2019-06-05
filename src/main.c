@@ -9,9 +9,12 @@
 int main ()
 {
 	initGame();
-	initInterface ();
+	initInterface();
 
 	displayGame();
+
+	quitInterface();
+	quitGame();
 
 	return 0;
 }
