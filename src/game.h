@@ -47,7 +47,7 @@ typedef struct COORDINATES
 
 typedef enum PLAYERID
 {
-	ERROR	= 0,
+	NONE	= 0,
 	PLAYER1 = 1,
 	PLAYER2 = 2
 } PlayerId;
@@ -70,10 +70,12 @@ typedef enum DIRECTION
 
 typedef struct GAME
 {
-	Player * player1;
-	Player * player2;
-	PlayerId current;
-	int		 round;
+	Player *	player1;
+	Player *	player2;
+	PlayerId	current;
+	PlayerId	winner;
+	int			round;
+	Coordinates lastHit;
 } Game;
 
 Game game;
@@ -91,5 +93,6 @@ void placeShipsRandomly (Player * player);
 int getShipLength (ShipType shipType);
 int isPlaying (Player * player);
 ShotType shootPlayer (Player * player, Coordinates pos);
+int gameIsOver ();
 
 #endif	// ifndef GAME_H

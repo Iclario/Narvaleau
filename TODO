@@ -1,8 +1,4 @@
 BOARD_SIZE as a variable
-fix choiceDirection out of array
-Use enum names (ship_type...)
-Change shipIsPlaceable()
-free mallocs
-Coordinates from 0 to 9 (not from 1 to 10)
+Change to shipIsPlaceable()
 Placeable ships choosable
 Include flowed detection

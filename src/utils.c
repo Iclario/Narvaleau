@@ -50,13 +50,14 @@ Coordinates getPosFromString (char * posChar)
 	return pos;
 }
 
-char * getStringFromPos (Coordinates pos)
+char * getStringFromPos (char * buffer, Coordinates pos)
 {
-	char * posChar = malloc (sizeof(char) * 5);
+	if (pos.number >= 1 && pos.number <= BOARD_SIZE && pos.letter >= 1 && pos.letter <= BOARD_SIZE)
+		sprintf (buffer, "%c%d", pos.letter + 'A' - 1, pos.number);
+	else
+		sprintf (buffer, "ER%d-%d", pos.letter, pos.number);
 
-	sprintf (posChar, "%c%d", pos.letter + 'A' - 1, pos.number);
-
-	return posChar;
+	return buffer;
 }
 
 const char * directionName (Direction dir)

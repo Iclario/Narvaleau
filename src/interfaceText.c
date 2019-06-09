@@ -86,11 +86,11 @@ void initInterface ()
 void pressEnterToContinue ()
 {
 	char bin;
-	char pauseText[30];
+	char buffer[30];
 
 	printf ("\n");
-	sprintf (pauseText, "Au tour du joueur %d", currentPlayer()->id);
-	displayCenteredText (pauseText);
+	sprintf (buffer, "Au tour du joueur %d", currentPlayer()->id);
+	displayCenteredText (buffer);
 	displayCenteredText ("Appuyez sur \"Entrée\" pour continuer");
 	scanf ("%c%c", &bin, &bin);
 }
@@ -144,24 +144,24 @@ void displayBoard (Player * player)
 
 void displayStartHeader ()
 {
-	char playerHeadText[10];
+	char buffer[10];
 
 	printf ("\n");
 	displayTextHead ("Placement des navires");
-	sprintf (playerHeadText, "Joueur %d", currentPlayer()->id);
-	displayTextHead (playerHeadText);
+	sprintf (buffer, "Joueur %d", currentPlayer()->id);
+	displayTextHead (buffer);
 	printf ("\n");
 }
 
 void displayGameHeader ()
 {
-	char playerHeadText[10];
+	char buffer[10];
 
 	printf ("\n");
-	sprintf (playerHeadText, "Tour %d", game.round);
-	displayTextHead (playerHeadText);
-	sprintf (playerHeadText, "Joueur %d", currentPlayer()->id);
-	displayTextHead (playerHeadText);
+	sprintf (buffer, "Tour %d", game.round);
+	displayTextHead (buffer);
+	sprintf (buffer, "Joueur %d", currentPlayer()->id);
+	displayTextHead (buffer);
 	printf ("\n");
 }
 
@@ -178,7 +178,7 @@ void displayStart ()
 	Direction choiceDirection;	// User direction choice
 	ShipType choiceShip;		// User ship choice
 	Coordinates choicePos;		// User position choice
-	char choicePosChar[10];		// User position choice (String)
+	char buffer[10];			// User position choice (String)
 
 	while (!allShipsPlaced (game.player1) || !allShipsPlaced (game.player2))
 	{
@@ -188,10 +188,10 @@ void displayStart ()
 
 			printf ("\nBateaux restants :\n\n");
 
-			for (i = 1; i < 6; i++)
+			for (i = 1; i <= N_SHIPS; i++)
 				printf ("%d. %s (%d cases) : %d\n", i, shipName (i), getShipLength (i), currentPlayer()->placeableShips[i - 1]);
 
-			printf ("%d. Finir de placer aléatoirement\n\n", i);
+			printf ("\n%d. Finir de placer aléatoirement\n\n", i);
 
 			do
 			{
@@ -213,8 +213,8 @@ void displayStart ()
 			do
 			{
 				printf ("Où souhaitez-vous le placer (De A1 à %c%d) ? ", 'A' + BOARD_SIZE - 1, BOARD_SIZE);
-				scanf ("%s", choicePosChar);
-				choicePos = getPosFromString (choicePosChar);
+				scanf ("%s", buffer);
+				choicePos = getPosFromString (buffer);
 			}
 			while (!positionIsInBound (choicePos));
 
@@ -259,24 +259,26 @@ void displayGameBoard ()
 
 void displayGame ()
 {
-	// char bin;
-	// int i;				// Couting variable
 	Coordinates choicePos;	// User position choice
-	char choicePosChar[10];	// User position choice (String)
+	char buffer[30];		// User position choice (String)
 	ShotType shot;
 
 	displayStart();
 
-	while (1)	// gameIsOver()
+	while (!gameIsOver())
 	{
 		displayGameBoard();
+
+		if (game.lastHit.number != 0 && game.lastHit.letter != 0)
+			printf ("Joueur %d a attaqué en %s\n", otherPlayer()->id, getStringFromPos (buffer, game.lastHit));
+
 		printf ("\n");
 
 		do
 		{
 			printf ("Où souhaitez-vous attaquer ? (De A1 à %c%d) ? ", 'A' + BOARD_SIZE - 1, BOARD_SIZE);
-			scanf ("%s", choicePosChar);
-			choicePos = getPosFromString (choicePosChar);
+			scanf ("%s", buffer);
+			choicePos = getPosFromString (buffer);
 
 			shot = shootPlayer (otherPlayer(), choicePos);
 		}
@@ -292,9 +294,17 @@ void displayGame ()
 		displayCenteredText ((char *) getStringFromShot (shot));
 		pressEnterToContinue();
 	}
+
+	clear();
+
+	printf ("\n");
+	sprintf (buffer, "Victoire du joueur %d !", game.winner);
+	displayCenteredText (buffer);
 }	/* displayGame */
 
 void quitInterface ()
-{ }
+{
+	printf ("\n\nA bientôt !\n\n");
+}
 
 #endif	// if GRAPHIQUE = 0

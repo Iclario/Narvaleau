@@ -4,7 +4,7 @@
 int scanint ();
 const char * shipName (ShipType shipType);
 Coordinates getPosFromString (char * posChar);
-char * getStringFromPos (Coordinates pos);
+char * getStringFromPos (char * buffer, Coordinates pos);
 const char * directionName (Direction dir);
 int positionIsInBound (Coordinates pos);
 int directionIsInBound (Direction dir);

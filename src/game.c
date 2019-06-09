@@ -35,9 +35,13 @@ void initGame ()
 
 	game.round = 0;
 
+	game.lastHit.letter = 0;
+	game.lastHit.number = 0;
+
 	game.player1 = malloc (sizeof(Player));
 	game.player2 = malloc (sizeof(Player));
 	game.current = PLAYER1;
+	game.winner	 = NONE;
 
 	game.player1->board	 = malloc (sizeof(Board));
 	game.player1->id	 = PLAYER1;
@@ -203,7 +207,7 @@ int allShipsPlaced (Player * player)
 	int i;
 
 	for (i = 0; i < N_SHIPS; i++)
-		if (player->placeableShips[i] == 1)
+		if (player->placeableShips[i] > 0)
 			return 0;
 
 	return 1;
@@ -213,7 +217,8 @@ int allShipsPlaced (Player * player)
  *
  * Return values :
  * 0: Ship successfully placed
- * > 0: Failed placing ship (see shipIsNotPlaceable())
+ * 1: Ship blocked
+ * 2: Parameters error
  *
  */
 int placeShip (Player * player, Coordinates pos, Direction direction, ShipType shipType)
@@ -263,14 +268,15 @@ void placeShipsRandomly (Player * player)
 	int i;
 	Coordinates pos;
 
-	for (i = 1; !allShipsPlaced (player);)
-	{
-		pos.number = randInBounds (1, BOARD_SIZE);
-		pos.letter = randInBounds (1, BOARD_SIZE);
+	while (!allShipsPlaced (player))
+		for (i = 1; i <= N_SHIPS;)
+		{
+			pos.number = randInBounds (1, BOARD_SIZE);
+			pos.letter = randInBounds (1, BOARD_SIZE);
 
-		if (placeShip (player, pos, randInBounds (0, 3), i) != 1)
-			i++;
-	}
+			if (placeShip (player, pos, randInBounds (0, 3), i) != 1)
+				i++;
+		}
 }
 
 /*
@@ -338,6 +344,8 @@ ShotType shootPlayer (Player * player, Coordinates pos)
 	if (player->board->shot[pos.number - 1][pos.letter - 1] != NO_SHOT)
 		return NO_SHOT;
 
+	game.lastHit = pos;
+
 	if (player->board->ship[pos.number - 1][pos.letter - 1] != NO_SHIP)
 	{
 		player->board->shot[pos.number - 1][pos.letter - 1] = HIT;
@@ -347,4 +355,18 @@ ShotType shootPlayer (Player * player, Coordinates pos)
 	player->board->shot[pos.number - 1][pos.letter - 1] = MISSED;
 
 	return MISSED;
+}
+
+int gameIsOver ()
+{
+	int i, j;
+
+	for (i = 0; i < BOARD_SIZE; i++)
+		for (j = 0; j < BOARD_SIZE; j++)
+			if (currentPlayer()->board->ship[i][j] != 0 && currentPlayer()->board->shot[i][j] != HIT && currentPlayer()->board->shot[i][j] != FLOWED)
+				return 0;
+
+	game.winner = otherPlayer()->id;
+
+	return 1;
 }
