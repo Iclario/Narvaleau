@@ -1,4 +1,2 @@
 BOARD_SIZE as a variable
-Change to shipIsPlaceable()
 Placeable ships choosable
-Include flowed detection

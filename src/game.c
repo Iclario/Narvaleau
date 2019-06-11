@@ -72,9 +72,6 @@ void initGame ()
 	}
 
 	srand (time (NULL));
-
-	placeShipsRandomly (game.player1);
-	placeShipsRandomly (game.player2);
 }	/* initGame */
 
 /*
@@ -231,10 +228,9 @@ int placeShip (Player * player, Coordinates pos, Direction direction, ShipType s
 		player->board->ship[i][j].type = shipType;
 
 		if (k == 0)
-		{
 			player->board->ship[i][j].master = 1;
-			player->board->ship[i][j].dir	 = direction;
-		}
+
+		player->board->ship[i][j].dir = direction;
 
 		switch (direction)
 		{
@@ -286,6 +282,110 @@ int isPlaying (Player * player)
 	return 0;
 }
 
+int findMasterShip (Player * player, int srcX, int srcY, int * masterX, int * masterY)
+{
+	*masterX = srcX;
+	*masterY = srcY;
+
+	while (player->board->ship[*masterY][*masterX].master == 0)
+	{
+		if (player->board->ship[*masterY][*masterX].type == NO_SHIP)
+		{
+			*masterX = 0;
+			*masterY = 0;
+
+			return -1;
+		}
+
+		switch (player->board->ship[*masterY][*masterX].dir)
+		{
+			case RIGHT:
+				(*masterX)--;
+				break;
+
+			case DOWN:
+				(*masterY)--;
+				break;
+		}
+	}
+
+	printf ("\nMaster ship coordinates %d/%d\n", *masterX, *masterY);
+	return 0;
+}
+
+/* Detects if the the ships are flowed and set them if they are
+ *
+ * Return values :
+ * NO_SHOT: Error
+ * HIT:     The ship is not flowed
+ * FLOWED:  The ship is flowed
+ */
+ShotType detectFlowed (Player * player, Coordinates pos)
+{
+	int i, j, k, x, y;
+	int flag;
+
+	Direction dir;
+	int length;
+
+	if (findMasterShip (player, pos.letter - 1, pos.number - 1, &x, &y) == -1)
+	{
+		printf ("Error finding master ship\n");
+		return NO_SHOT;
+	}
+
+	dir	   = player->board->ship[y][x].dir;
+	length = getShipLength (player->board->ship[y][x].type);
+
+	i = y;
+	j = x;
+
+	flag = 0;
+
+	for (k = 0; !flag && k < length; k++)
+	{
+		if (player->board->shot[i][j] != HIT)
+			flag = 1;
+
+		switch (dir)
+		{
+			case RIGHT:
+				j++;
+				break;
+
+			case DOWN:
+				i++;
+				break;
+		}
+	}
+
+	if (!flag)
+	{
+		i = y;
+		j = x;
+
+		for (k = 0; k < length; k++)
+		{
+			player->board->shot[i][j] = FLOWED;
+
+			switch (dir)
+			{
+				case RIGHT:
+					j++;
+					break;
+
+				case DOWN:
+					i++;
+					break;
+			}
+		}
+
+		return FLOWED;
+	}
+
+	return HIT;
+}	/* detectFlowed */
+
 /* Shoot the selected player
  *
  * Return values :
@@ -316,7 +416,8 @@ ShotType shootPlayer (Player * player, Coordinates pos)
 	if (player->board->ship[pos.number - 1][pos.letter - 1].type != NO_SHIP)
 	{
 		player->board->shot[pos.number - 1][pos.letter - 1] = HIT;
-		return HIT;
+
+		return detectFlowed (player, pos);
 	}
 
 	player->board->shot[pos.number - 1][pos.letter - 1] = MISSED;
@@ -330,6 +431,9 @@ ShotType shootPlayer (Player * player, Coordinates pos)
 int gameIsOver ()
 {
 	int i, j;
+
+	if (game.round == 0)
+		return 0;
 
 	for (i = 0; i < BOARD_SIZE; i++)
 		for (j = 0; j < BOARD_SIZE; j++)

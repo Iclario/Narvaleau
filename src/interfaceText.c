@@ -16,6 +16,11 @@ void displayTextHead (char * text)
 	int right  = size / 2;
 	int i;
 
+	if (currentPlayer()->id == PLAYER1)
+		printf ("\033[0;34m");	// Color : Blue
+	else
+		printf ("\033[0;31m");	// Color : Red
+
 	for (i = 0; i < left; i++)
 		printf ("%c%c%c", 0xE2, 0x80, 0x95);
 
@@ -24,7 +29,7 @@ void displayTextHead (char * text)
 	for (i = 0; i < right; i++)
 		printf ("%c%c%c", 0xE2, 0x80, 0x95);
 
-	printf ("\n");
+	printf ("\033[0m\n");
 }
 
 void displayTextHeadDouble (char * text)
@@ -35,6 +40,8 @@ void displayTextHeadDouble (char * text)
 	int right  = size / 2;
 	int i;
 
+	printf ("\033[01;32m");
+
 	for (i = 0; i < left; i++)
 		printf ("=");
 
@@ -43,6 +50,7 @@ void displayTextHeadDouble (char * text)
 	for (i = 0; i < right; i++)
 		printf ("=");
 
+	printf ("\033[0m");
 	printf ("\n");
 }
 
@@ -56,13 +64,14 @@ void clear ()
 {
 	printf ("\033[H\033[J");
 	printf ("\033[H\033[J");
+	// printf ("\n\n\n\n\n\n");
 
 	displayHeader();
 }
 
 void displayCenteredText (char * text)
 {
-	int length = strlen (text);
+	int length = customStrLen (text);
 	int size   = BOARD_SIZE * 3 + 4 - length;
 	int left   = size / 2.0 + 0.5;
 	int i;
@@ -79,7 +88,8 @@ void initInterface ()
 
 	clear();
 
-	printf ("\nAppuyez sur \"Entrée\" pour continuer");
+	printf ("\n");
+	displayCenteredText ("\033[3;39mAppuyez sur \"Entrée\" pour continuer\033[0m");
 	scanf ("%c", &bin);
 }
 
@@ -89,9 +99,15 @@ void pressEnterToContinue ()
 	char buffer[30];
 
 	printf ("\n");
-	sprintf (buffer, "Au tour du joueur %d", currentPlayer()->id);
+
+	if (gameIsOver())
+		sprintf (buffer, "Fin de la partie !");
+	else
+		sprintf (buffer, "Au tour du \033%sjoueur %d\033[0m", currentPlayer()->id == PLAYER1 ? "[0;34m" : "[0;31m", currentPlayer()->id);
+
 	displayCenteredText (buffer);
-	displayCenteredText ("Appuyez sur \"Entrée\" pour continuer");
+	printf ("\n");
+	displayCenteredText ("\033[3;39mAppuyez sur \"Entrée\" pour continuer\033[0m");
 	scanf ("%c%c", &bin, &bin);
 }
 
@@ -99,47 +115,107 @@ void displayBoard (Player * player)
 {
 	int i, j;
 
-	for (i = 0; i < BOARD_SIZE * 3 + 4; i++)
-		printf ("=");
+	if (player->id == PLAYER1)
+		printf ("\033[1;34m");	// Color : Blue
+	else
+		printf ("\033[1;31m");	// Color : Red
 
-	printf ("\n");
+	printf ("%c%c%c", 0xE2, 0x95, 0x94);// ╔
 
-	printf ("%c%c%c ", 0xE2, 0x88, 0xA5);
+	for (i = 1; i < BOARD_SIZE * 3 + 3; i++)
+		printf ("%c%c%c", 0xE2, 0x95, 0x90);	// ═
+
+	printf ("%c%c%c\n", 0xE2, 0x95, 0x97);	// ╗
+
+	printf ("%c%c%c ", 0xE2, 0x95, 0x91);	// ║
 
 	for (i = 0; i < BOARD_SIZE; i++)
 	{
 		printf ("  %c", i + 'A');
 	}
 
-	printf (" %c%c%c\n", 0xE2, 0x88, 0xA5);
+	printf (" %c%c%c\n", 0xE2, 0x95, 0x91);	// ║
 
 	for (i = 0; i < BOARD_SIZE; i++)
 	{
-		printf ("%c%c%c%2d", 0xE2, 0x88, 0xA5, i + 1);
+		printf ("%c%c%c%2d", 0xE2, 0x95, 0x91, i + 1);	// ║
 
 		for (j = 0; j < BOARD_SIZE; j++)
 		{
 			if (player->board->shot[i][j] == MISSED)
 				printf (" %c%c%c ", 0xE2, 0xA8, 0xAF);
 			else if (player->board->shot[i][j] == HIT)
-				printf (" %c%c%c%c ", 0xF0, 0x9F, 0x94, 0xA5);
+			{
+				switch (player->board->ship[i][j].dir)
+				{
+					case RIGHT:
+						printf ("%c%c%c", 0xE2, 0x96, 0x97);
+						printf ("%c%c%c", 0xE2, 0x96, 0x97);
+						printf ("%c%c%c", 0xE2, 0x96, 0x97);
+						break;
+
+					case DOWN:
+						if (player->board->ship[i][j].master == 1)
+							printf (" %c%c%c ", 0xE2, 0x96, 0x96);
+						else
+							printf (" %c%c%c ", 0xE2, 0x96, 0x9E);
+						break;
+
+					default:
+						printf (" x ");
+						break;
+				}
+			}
 			else if (player->board->shot[i][j] == FLOWED)
 				printf (" %c%c%c ", 0xE2, 0x9C, 0x9D);
 			else if (isPlaying (player) && (player->board->ship[i][j].type != NO_SHIP))
-				printf (" %c%c%c ", 0xE2, 0x96, 0xA0);
+			{
+				switch (player->board->ship[i][j].dir)
+				{
+					case RIGHT:
+						if (j == 0 || player->board->ship[i][j].master == 1)
+							printf (" ");
+						else
+							printf ("%c%c%c", 0xE2, 0x96, 0x84);
+
+						printf ("%c%c%c", 0xE2, 0x96, 0x84);
+
+						if (j == BOARD_SIZE - 1)
+							printf (" ");
+						else
+							printf ("%c%c%c", 0xE2, 0x96, 0x84);
+						break;
+
+					case DOWN:
+						if (player->board->ship[i][j].master == 1)
+							printf (" %c%c%c ", 0xE2, 0x96, 0x85);
+						else
+							printf (" %c%c%c ", 0xE2, 0x96, 0x88);
+
+						break;
+
+					default:
+						printf (" x ");
+						break;
+				}
+			}
 			else if (!isPlaying (player) && player->board->flag[i][j] == PERSONNAL)
 				printf (" %c%c%c ", 0xE2, 0x8A, 0x95);
 			else
 				printf (" . ");
 		}
 
-		printf ("%c%c%c\n", 0xE2, 0x88, 0xA5);
+		printf ("%c%c%c\n", 0xE2, 0x95, 0x91);	// ║
 	}
 
-	for (i = 0; i < BOARD_SIZE * 3 + 4; i++)
-		printf ("=");
+	printf ("%c%c%c", 0xE2, 0x95, 0x9A);// ╚
 
-	printf ("\n");
+	for (i = 0; i < BOARD_SIZE * 3 + 2; i++)
+		printf ("%c%c%c", 0xE2, 0x95, 0x90);	// ═
+
+	printf ("%c%c%c", 0xE2, 0x95, 0x9D);// ╝
+
+	printf ("\033[0m\n");
 }	/* displayBoard */
 
 void displayStartHeader ()
@@ -186,7 +262,7 @@ void displayStart ()
 		{
 			displayStartBoard();
 
-			printf ("\nBateaux restants :\n\n");
+			printf ("\n\033[1;39mBateaux restants :\033[0;00m\n\n");
 
 			for (i = 1; i <= N_SHIPS; i++)
 				printf ("%d. %s (%d cases) : %d\n", i, shipName (i), getShipLength (i), currentPlayer()->placeableShips[i - 1]);
@@ -209,7 +285,6 @@ void displayStart ()
 				break;
 			}
 
-
 			do
 			{
 				printf ("Où souhaitez-vous le placer (De A1 à %c%d) ? ", 'A' + BOARD_SIZE - 1, BOARD_SIZE);
@@ -229,7 +304,7 @@ void displayStart ()
 			{
 				printf ("Choix : ");
 				choiceDirection = scanint() - 1;
-				if (choiceDirection == 4)
+				if (choiceDirection == i)
 					break;
 			}
 			while (!directionIsInBound (choiceDirection) || shipIsNotPlaceable (currentPlayer(), choicePos, choiceDirection, choiceShip));
@@ -260,7 +335,8 @@ void displayGameBoard ()
 void displayGame ()
 {
 	Coordinates choicePos;	// User position choice
-	char buffer[30];		// User position choice (String)
+	char buffer[30];
+	char buffer2[10];	// User position choice (String)
 	ShotType shot;
 
 	displayStart();
@@ -270,15 +346,18 @@ void displayGame ()
 		displayGameBoard();
 
 		if (game.lastHit.number != 0 && game.lastHit.letter != 0)
-			printf ("Joueur %d a attaqué en %s\n", otherPlayer()->id, getStringFromPos (buffer, game.lastHit));
+		{
+			sprintf (buffer, "Joueur %d a attaqué en %s\n", otherPlayer()->id, getStringFromPos (buffer2, game.lastHit));
+			displayCenteredText (buffer);
+		}
 
 		printf ("\n");
 
 		do
 		{
 			printf ("Où souhaitez-vous attaquer ? (De A1 à %c%d) ? ", 'A' + BOARD_SIZE - 1, BOARD_SIZE);
-			scanf ("%s", buffer);
-			choicePos = getPosFromString (buffer);
+			scanf ("%s", buffer2);
+			choicePos = getPosFromString (buffer2);
 
 			shot = shootPlayer (otherPlayer(), choicePos);
 		}

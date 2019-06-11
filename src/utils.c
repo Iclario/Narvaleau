@@ -82,7 +82,7 @@ int positionIsInBound (Coordinates pos)
 
 int directionIsInBound (Direction dir)
 {
-	return dir >= 0 && dir <= 3;
+	return dir >= 0 && dir <= 1;
 }
 
 int shipTypeIsInBound (ShipType shipType)
@@ -136,4 +136,27 @@ int getShipLength (ShipType shipType)
 		default:
 			return 0;
 	}
+}
+
+int customStrLen (char * string)
+{
+	int i, length;
+	int flag = 0;
+
+	length = 0;
+
+	for (i = 0; string[i] != '\0'; i++)
+	{
+		if (string[i] == '\033')
+			flag = 1;
+
+		if (string[i] == 'm')
+			flag = 0;
+
+		if (!flag)
+			length++;
+	}
+
+
+	return length;
 }

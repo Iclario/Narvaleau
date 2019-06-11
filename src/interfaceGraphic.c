@@ -11,34 +11,71 @@
 
 SDL_Texture * shipImage[2][N_SHIPS];
 
-SDL_Window * window		= NULL;
-SDL_Renderer * renderer = NULL;
-TTF_Font * police		= NULL;
+SDL_Window * window		  = NULL;
+SDL_Renderer * renderer	  = NULL;
+SDL_Surface * textSurface = NULL;
+SDL_Texture * textTexture = NULL;
 
 SDL_Rect rect;
 SDL_Event event;
 
-void displayCenteredText (char * text)
+void displayText (char * text, int x, int y, int size)
 {
-	int length = strlen (text);
-	int size   = WINDOW_DIMENSION_WIDTH;
-	int left   = size / 2.0 + 0.5;
-	int i;
+	SDL_Color color = { 255, 255, 255, 255 };
+	int w, h;
 
-	SDL_Color couleurNoire = { 0, 0, 0 };
+	TTF_Font * font = TTF_OpenFont ("fonts/Roboto/Roboto-Regular.ttf", size);
 
-	//texte = TTF_RenderText_Blended (police, "Salut les Zér0s !", couleurNoire);
+	textSurface = TTF_RenderText_Blended (font, text, color);
+	TTF_CloseFont (font);
 
-	for (i = 0; i < left; i++)
-		printf (" ");
+	textTexture = SDL_CreateTextureFromSurface (renderer, textSurface);
 
-	printf ("%s\n", text);
+	SDL_QueryTexture (textTexture, NULL, NULL, &w, &h);
+	SDL_Rect dest = { x, y, w, h };
+
+	SDL_RenderCopy (renderer, textTexture, NULL, &dest);
+}
+
+void displayCenteredText (char * text, int y, int size)
+{
+	int w, h;
+
+	TTF_Font * font = TTF_OpenFont ("fonts/Roboto/Roboto-Regular.ttf", size);
+
+	TTF_SizeText (font, text, &w, &h);
+	TTF_CloseFont (font);
+
+	displayText (text, (WINDOW_DIMENSION_WIDTH - w) / 2.0, y, size);
 }
 
 void displayHeader ()
 {
-	displayCenteredText ("Bataille navale");
-	displayCenteredText (GAME_NAME);
+	displayCenteredText ("Bataille navale", 10, 30);
+	displayCenteredText (GAME_NAME, 40, 30);
+}
+
+void displayStartHeader ()
+{
+	char buffer[10];
+
+	sprintf (buffer, "Joueur %d", currentPlayer()->id);
+
+	displayCenteredText ("Placement des navires", 80, 20);
+	displayCenteredText (buffer, 100, 20);
+
+	printf ("\n");
+}
+
+void displayGameHeader ()
+{
+	char buffer[10];
+
+	sprintf (buffer, "Tour %d", game.round);
+	displayCenteredText (buffer, 80, 20);
+
+	sprintf (buffer, "Joueur %d", currentPlayer()->id);
+	displayCenteredText (buffer, 100, 20);
 }
 
 /*
@@ -154,8 +191,6 @@ void initInterface ()
 			SDL_FreeSurface (image);
 		}
 	}
-
-	police = TTF_OpenFont ("Roboto/Roboto-Regular.ttf", 65);
 }
 
 void displayShipChoice ()
@@ -180,13 +215,10 @@ void displayStart ()
 	SDL_RenderClear (renderer);
 
 	displayHeader();
-
-	displayShipChoice();
+	displayStartHeader();
 
 	drawBoard (0, currentPlayer());
-
-	SDL_RenderPresent (renderer);
-	SDL_UpdateWindowSurface (window);
+	displayShipChoice();
 }
 
 void displayGame ()
@@ -207,6 +239,8 @@ void displayGame ()
 				case SDL_MOUSEBUTTONDOWN:
 				case SDL_WINDOWEVENT:
 					displayStart();
+					SDL_RenderPresent (renderer);
+					SDL_UpdateWindowSurface (window);
 
 					break;
 			}
@@ -218,7 +252,6 @@ void quitInterface ()
 {
 	int i, j;
 
-	TTF_CloseFont (police);
 	TTF_Quit();
 
 	for (i = 0; i <= 1; i++)
