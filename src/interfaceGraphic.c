@@ -10,39 +10,92 @@
 
 SDL_Window * window;
 SDL_Renderer * renderer;
-SDL_Surface * image;
+SDL_Texture * shipImage[N_SHIPS];
 SDL_Rect rect;
 
-void drawBoard ()
+/*
+ * Draws the board
+ *
+ * Arguments:
+ * int upDown : Draws it up (0) or down (1)
+ *
+ */
+void drawBoard (int upDown, Player * player)
 {
-	int w, h;
-
-	SDL_SetRenderDrawColor (renderer, 255, 255, 255, 255);
-	SDL_RenderClear (renderer);
+	int w, h, i, j, flag;
+	SDL_Rect dest;
 
 	SDL_GetWindowSize (window, &w, &h);
 
-	rect.w = 300;
-	rect.h = 300;
-	rect.x = (w - rect.w) / 2;
-	rect.y = 50;
+	for (i = 0; i < BOARD_SIZE; i++)
+	{
+		for (j = 0; j < BOARD_SIZE; j++)
+		{
+			rect.w = SQUARE_SIZE;
+			rect.h = SQUARE_SIZE;
+			rect.y = SQUARE_SIZE * upDown * (BOARD_SIZE + 1) + SQUARE_SIZE + SQUARE_SIZE * i;
+			rect.x = SQUARE_SIZE + SQUARE_SIZE * j;
 
-	SDL_SetRenderDrawColor (renderer, 255, 0, 0, 255);
-	SDL_RenderDrawRect (renderer, &rect);
+			if (player->id == game.current)
+			{
+				if ((j + i) % 2 == 0)
+					SDL_SetRenderDrawColor (renderer, 0x7F, 0, 0, 255);
+				else
+					SDL_SetRenderDrawColor (renderer, 0xB7, 0x1C, 0x1C, 255);
+			}
+			else
+			{
+				if ((j + i) % 2 == 0)
+					SDL_SetRenderDrawColor (renderer, 0x21, 0x71, 0xA1, 255);
+				else
+					SDL_SetRenderDrawColor (renderer, 0, 0x21, 0x71, 255);
+			}
 
-	SDL_RenderPresent (renderer);
-}
+			SDL_RenderFillRect (renderer, &rect);
+		}
+	}
+
+	for (i = 0; i < BOARD_SIZE; i++)
+	{
+		for (j = 0; j < BOARD_SIZE; j++)
+		{
+			if (player->board->ship[i][j] != NO_SHIP)
+			{
+				dest.w = SQUARE_SIZE * getShipLength (player->board->ship[i][j]);
+				dest.h = SQUARE_SIZE;
+				dest.y = SQUARE_SIZE * upDown * (BOARD_SIZE + 1) + SQUARE_SIZE + SQUARE_SIZE * i;
+				dest.x = SQUARE_SIZE + SQUARE_SIZE * j;
+
+				SDL_RenderCopy (renderer, shipImage[player->board->ship[i][j]], NULL, &dest);
+			}
+		}
+	}
+}	/* drawBoard */
 
 void initInterface ()
 {
-	window = SDL_CreateWindow ("SDL2 Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_DIMENSION_WIDTH, WINDOW_DIMENSION_HEIGHT, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+	int i;
+
+	window = SDL_CreateWindow (GAME_NAME, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_DIMENSION_WIDTH, WINDOW_DIMENSION_HEIGHT, SDL_WINDOW_SHOWN);
 
 	renderer = SDL_CreateRenderer (window, -1, SDL_RENDERER_ACCELERATED);
+
+	char fileName[30];
+
+	for (i = 0; i < N_SHIPS; i++)
+	{
+		sprintf (fileName, "images/ships/right/%d.bmp", i);
+		shipImage[i] = SDL_CreateTextureFromSurface (renderer, SDL_LoadBMP (fileName));
+	}
 }
 
 void displayStart ()
 {
-	drawBoard();
+	SDL_SetRenderDrawColor (renderer, 255, 255, 255, 255);
+	SDL_RenderClear (renderer);
+
+	drawBoard (1, otherPlayer());
+	drawBoard (0, currentPlayer());
 }
 
 void displayGame ()
@@ -65,6 +118,7 @@ void displayGame ()
 			if (game.round == 0)
 				displayStart();
 
+			SDL_RenderPresent (renderer);
 			SDL_UpdateWindowSurface (window);
 		}
 	}

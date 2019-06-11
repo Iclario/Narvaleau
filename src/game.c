@@ -68,6 +68,9 @@ void initGame ()
 	}
 
 	srand (time (NULL));
+
+	placeShipsRandomly (game.player1);
+	placeShipsRandomly (game.player2);
 }	/* initGame */
 
 /*
