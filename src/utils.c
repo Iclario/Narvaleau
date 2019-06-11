@@ -64,16 +64,10 @@ const char * directionName (Direction dir)
 {
 	switch (dir)
 	{
-		case BAS:
+		case DOWN:
 			return "Bas   ";
 
-		case GAUCHE:
-			return "Gauche";
-
-		case HAUT:
-			return "Haut  ";
-
-		case DROITE:
+		case RIGHT:
 			return "Droite";
 
 		default:
@@ -98,7 +92,7 @@ int shipTypeIsInBound (ShipType shipType)
 
 int randInBounds (int a, int b)
 {
-	return rand() % (b - a) + a;
+	return rand() % (b - a + 1) + a;
 }
 
 const char * getStringFromShot (ShotType shot)
@@ -116,5 +110,30 @@ const char * getStringFromShot (ShotType shot)
 
 		default:
 			return "Erreur";
+	}
+}
+
+/*
+ * Returns the length of the ship from its type
+ */
+int getShipLength (ShipType shipType)
+{
+	switch (shipType)
+	{
+		case CARRIER:
+			return 5;
+
+		case BATTLESHIP:
+			return 4;
+
+		case CRUISER:
+		case SUBMARINE:
+			return 3;
+
+		case DESTROYER:
+			return 2;
+
+		default:
+			return 0;
 	}
 }

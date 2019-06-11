@@ -11,5 +11,6 @@ int directionIsInBound (Direction dir);
 int shipTypeIsInBound (ShipType shipType);
 int randInBounds (int a, int b);
 const char * getStringFromShot (ShotType shot);
+int getShipLength (ShipType shipType);
 
 #endif	// ifndef UTILS_H

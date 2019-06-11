@@ -125,7 +125,7 @@ void displayBoard (Player * player)
 				printf (" %c%c%c%c ", 0xF0, 0x9F, 0x94, 0xA5);
 			else if (player->board->shot[i][j] == FLOWED)
 				printf (" %c%c%c ", 0xE2, 0x9C, 0x9D);
-			else if (isPlaying (player) && (player->board->ship[i][j] != NO_SHIP))
+			else if (isPlaying (player) && (player->board->ship[i][j].type != NO_SHIP))
 				printf (" %c%c%c ", 0xE2, 0x96, 0xA0);
 			else if (!isPlaying (player) && player->board->flag[i][j] == PERSONNAL)
 				printf (" %c%c%c ", 0xE2, 0x8A, 0x95);
@@ -220,7 +220,7 @@ void displayStart ()
 
 			printf ("Dans quelle orientation ?\n");
 
-			for (i = 0; i < 4; i++)
+			for (i = 0; i <= 1; i++)
 				printf ("%d. %s %s\n", i + 1, directionName (i), shipIsNotPlaceable (currentPlayer(), choicePos, i, choiceShip) ? "X" : "");
 
 			printf ("%d. Annuler\n", i + 1);
@@ -232,7 +232,7 @@ void displayStart ()
 				if (choiceDirection == 4)
 					break;
 			}
-			while (choiceDirection < 0 || choiceDirection > 3 || shipIsNotPlaceable (currentPlayer(), choicePos, choiceDirection, choiceShip) );
+			while (!directionIsInBound (choiceDirection) || shipIsNotPlaceable (currentPlayer(), choicePos, choiceDirection, choiceShip));
 
 			placeShip (currentPlayer(), choicePos, choiceDirection, choiceShip);
 		}

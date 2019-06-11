@@ -32,9 +32,22 @@ typedef enum SHOT_TYPE
 	FLOWED	= 3
 } ShotType;
 
+typedef enum DIRECTION
+{
+	RIGHT,
+	DOWN
+} Direction;
+
+typedef struct SHIP
+{
+	ShipType  type;
+	int		  master;	// 1: Master ship - 0: Not master ship
+	Direction dir;		// The direction of the ship (only if master ship)
+} Ship;
+
 typedef struct BOARD
 {
-	ShipType ship[BOARD_SIZE][BOARD_SIZE];
+	Ship	 ship[BOARD_SIZE][BOARD_SIZE];
 	FlagType flag[BOARD_SIZE][BOARD_SIZE];
 	ShotType shot[BOARD_SIZE][BOARD_SIZE];
 } Board;
@@ -60,14 +73,6 @@ typedef struct PLAYER
 	int		 placeableShips[N_SHIPS];
 } Player;
 
-typedef enum DIRECTION
-{
-	BAS,
-	GAUCHE,
-	HAUT,
-	DROITE
-} Direction;
-
 typedef struct GAME
 {
 	Player *	player1;
@@ -90,7 +95,6 @@ void nextPlayer ();
 int allShipsPlaced (Player * player);
 int placeShip (Player * player, Coordinates pos, Direction direction, ShipType shipType);
 void placeShipsRandomly (Player * player);
-int getShipLength (ShipType shipType);
 int isPlaying (Player * player);
 ShotType shootPlayer (Player * player, Coordinates pos);
 int gameIsOver ();

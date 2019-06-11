@@ -58,12 +58,16 @@ void initGame ()
 	{
 		for (j = 0; j < BOARD_SIZE; j++)
 		{
-			game.player1->board->ship[i][j] = NO_SHIP;
-			game.player2->board->ship[i][j] = NO_SHIP;
-			game.player1->board->flag[i][j] = NO_FLAG;
-			game.player2->board->flag[i][j] = NO_FLAG;
-			game.player1->board->shot[i][j] = NO_SHOT;
-			game.player2->board->shot[i][j] = NO_SHOT;
+			game.player1->board->ship[i][j].type   = NO_SHIP;
+			game.player2->board->ship[i][j].type   = NO_SHIP;
+			game.player1->board->ship[i][j].master = 0;
+			game.player2->board->ship[i][j].master = 0;
+			game.player1->board->ship[i][j].dir	   = RIGHT;
+			game.player2->board->ship[i][j].dir	   = RIGHT;
+			game.player1->board->flag[i][j]		   = NO_FLAG;
+			game.player2->board->flag[i][j]		   = NO_FLAG;
+			game.player1->board->shot[i][j]		   = NO_SHOT;
+			game.player2->board->shot[i][j]		   = NO_SHOT;
 		}
 	}
 
@@ -127,38 +131,23 @@ int shipIsNotPlaceable (Player * player, Coordinates pos, Direction direction, S
 		return 2;
 	}
 
-	if (direction == BAS && pos.number + length > BOARD_SIZE + 1)
+	if (direction == DOWN && pos.number + length > BOARD_SIZE + 1)
 	{
 		return 1;
 	}
 
-	if (direction == GAUCHE && pos.letter - length < 0)
-	{
-		return 1;
-	}
 
-	if (direction == HAUT && pos.number - length < 0)
-	{
-		return 1;
-	}
-
-	if (direction == DROITE && pos.letter + length > BOARD_SIZE + 1)
+	if (direction == RIGHT && pos.letter + length > BOARD_SIZE + 1)
 	{
 		return 1;
 	}
 
 	for (i = 0; i < length; i++)
 	{
-		if (direction == BAS && player->board->ship[pos.number - 1 + i][pos.letter - 1] != 0)
+		if (direction == DOWN && player->board->ship[pos.number - 1 + i][pos.letter - 1].type != 0)
 			return 1;
 
-		if (direction == GAUCHE && player->board->ship[pos.number - 1][pos.letter - 1 - i] != 0)
-			return 1;
-
-		if (direction == HAUT && player->board->ship[pos.number - 1 - i][pos.letter - 1] != 0)
-			return 1;
-
-		if (direction == DROITE && player->board->ship[pos.number - 1][pos.letter - 1 + i] != 0)
+		if (direction == RIGHT && player->board->ship[pos.number - 1][pos.letter - 1 + i].type != 0)
 			return 1;
 	}
 
@@ -239,20 +228,20 @@ int placeShip (Player * player, Coordinates pos, Direction direction, ShipType s
 
 	for (k = 0; k < length; k++)
 	{
-		player->board->ship[i][j] = shipType;
+		player->board->ship[i][j].type = shipType;
+
+		if (k == 0)
+		{
+			player->board->ship[i][j].master = 1;
+			player->board->ship[i][j].dir	 = direction;
+		}
 
 		switch (direction)
 		{
-			case BAS:
+			case DOWN:
 				i++;
 				break;
-			case GAUCHE:
-				j--;
-				break;
-			case HAUT:
-				i--;
-				break;
-			case DROITE:
+			case RIGHT:
 				j++;
 				break;
 		}
@@ -277,34 +266,9 @@ void placeShipsRandomly (Player * player)
 			pos.number = randInBounds (1, BOARD_SIZE);
 			pos.letter = randInBounds (1, BOARD_SIZE);
 
-			if (placeShip (player, pos, randInBounds (0, 3), i) != 1)
+			if (placeShip (player, pos, randInBounds (0, 1), i) != 1)
 				i++;
 		}
-}
-
-/*
- * Returns the length of the ship from its type
- */
-int getShipLength (ShipType shipType)
-{
-	switch (shipType)
-	{
-		case CARRIER:
-			return 5;
-
-		case BATTLESHIP:
-			return 4;
-
-		case CRUISER:
-		case SUBMARINE:
-			return 3;
-
-		case DESTROYER:
-			return 2;
-
-		default:
-			return 0;
-	}
 }
 
 /*
@@ -349,7 +313,7 @@ ShotType shootPlayer (Player * player, Coordinates pos)
 
 	game.lastHit = pos;
 
-	if (player->board->ship[pos.number - 1][pos.letter - 1] != NO_SHIP)
+	if (player->board->ship[pos.number - 1][pos.letter - 1].type != NO_SHIP)
 	{
 		player->board->shot[pos.number - 1][pos.letter - 1] = HIT;
 		return HIT;
@@ -360,13 +324,16 @@ ShotType shootPlayer (Player * player, Coordinates pos)
 	return MISSED;
 }
 
+/* TODO : handle "flowed"
+ *
+ */
 int gameIsOver ()
 {
 	int i, j;
 
 	for (i = 0; i < BOARD_SIZE; i++)
 		for (j = 0; j < BOARD_SIZE; j++)
-			if (currentPlayer()->board->ship[i][j] != 0 && currentPlayer()->board->shot[i][j] != HIT && currentPlayer()->board->shot[i][j] != FLOWED)
+			if (currentPlayer()->board->ship[i][j].type != 0 && currentPlayer()->board->shot[i][j] != HIT && currentPlayer()->board->shot[i][j] != FLOWED)
 				return 0;
 
 	game.winner = otherPlayer()->id;

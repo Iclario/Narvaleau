@@ -3,11 +3,14 @@
 
 #include "game.h"
 
-#define GRAPHIQUE 0
+#define GRAPHIQUE 1
 
 #define WINDOW_DIMENSION_HEIGHT 800
 #define SQUARE_SIZE				30
-#define WINDOW_DIMENSION_WIDTH	(SQUARE_SIZE * (BOARD_SIZE + 10))
+#define PADDING_UP				200
+#define PADDING_LEFT			50
+#define BORDER_THICKNESS		5
+#define WINDOW_DIMENSION_WIDTH	PADDING_LEFT + (SQUARE_SIZE * (BOARD_SIZE)) + 400
 
 void initInterface ();
 void displayGame ();
