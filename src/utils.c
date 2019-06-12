@@ -45,7 +45,15 @@ Coordinates getPosFromString (char * posChar)
 	Coordinates pos;
 
 	pos.number = strtol (posChar + 1, NULL, 10);
-	pos.letter = posChar[0] - 'A' + 1;
+	if (posChar[0] >= 'a' && posChar[0] <= 'z')
+		pos.letter = posChar[0] - 'a' + 1;
+	else if (posChar[0] >= 'A' && posChar[0] <= 'Z')
+		pos.letter = posChar[0] - 'A' + 1;
+	else
+	{
+		pos.letter = -1;
+	}
+
 
 	return pos;
 }

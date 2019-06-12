@@ -63,8 +63,6 @@ void displayStartHeader ()
 
 	displayCenteredText ("Placement des navires", 80, 20);
 	displayCenteredText (buffer, 100, 20);
-
-	printf ("\n");
 }
 
 void displayGameHeader ()

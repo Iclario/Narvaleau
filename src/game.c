@@ -99,45 +99,25 @@ int shipIsNotPlaceable (Player * player, Coordinates pos, Direction direction, S
 	int i;
 
 	if (player == NULL)
-	{
-		printf ("[DEBUG] Player is NULL\n");
 		return 2;
-	}
 
 	if (!positionIsInBound (pos))
-	{
-		printf ("[DEBUG] position is out of bounds\n");
 		return 2;
-	}
 
 	if (!directionIsInBound (direction))
-	{
-		printf ("[DEBUG] direction is out of bounds\n");
 		return 2;
-	}
 
 	if (!shipTypeIsInBound (shipType))
-	{
-		printf ("[DEBUG] shipType is out of bounds\n");
 		return 2;
-	}
 
 	if (player->placeableShips[shipType - 1] <= 0)
-	{
-		printf ("[DEBUG] shipType %d is not availailable (%d)\n", shipType, player->placeableShips[shipType - 1]);
 		return 2;
-	}
 
 	if (direction == DOWN && pos.number + length > BOARD_SIZE + 1)
-	{
 		return 1;
-	}
-
 
 	if (direction == RIGHT && pos.letter + length > BOARD_SIZE + 1)
-	{
 		return 1;
-	}
 
 	for (i = 0; i < length; i++)
 	{
@@ -397,16 +377,10 @@ ShotType detectFlowed (Player * player, Coordinates pos)
 ShotType shootPlayer (Player * player, Coordinates pos)
 {
 	if (player == NULL)
-	{
-		printf ("[DEBUG] Player is NULL\n");
 		return NO_SHOT;
-	}
 
 	if (!positionIsInBound (pos))
-	{
-		printf ("[DEBUG] position is out of bounds\n");
 		return NO_SHOT;
-	}
 
 	if (player->board->shot[pos.number - 1][pos.letter - 1] != NO_SHOT)
 		return NO_SHOT;

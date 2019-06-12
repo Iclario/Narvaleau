@@ -116,9 +116,9 @@ void displayBoard (Player * player)
 	int i, j;
 
 	if (player->id == PLAYER1)
-		printf ("\033[1;34m");	// Color : Blue
+		printf ("\033[0;34m");	// Color : Blue
 	else
-		printf ("\033[1;31m");	// Color : Red
+		printf ("\033[0;31m");	// Color : Red
 
 	printf ("%c%c%c", 0xE2, 0x95, 0x94);// ╔
 
